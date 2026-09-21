@@ -31,14 +31,16 @@ available immediately.
 
 ## Manual installation
 
-Copy the skill folder into `.agents/skills/` in the repository where you want
-to use it:
+For execution-efficiency:
 
-```bash
-git clone https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills
-mkdir -p .agents/skills
-cp -R /tmp/openhands-skills/execution-efficiency .agents/skills/
+```
+rm -rf /tmp/openhands-skills && git clone -q https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills && mkdir -p /root/.agents/skills && cp -R /tmp/openhands-skills/execution-efficiency /root/.agents/skills/ && rm -rf /tmp/openhands-skills
 ```
 
-Replace `execution-efficiency` with `workspace-hygene` to install the other
-skill.
+For workspace-hygene:
+
+```
+rm -rf /tmp/openhands-skills && git clone -q https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills && mkdir -p /root/.agents/skills && cp -R /tmp/openhands-skills/workspace-hygene /root/.agents/skills/ && rm -rf /tmp/openhands-skills
+```
+
+These install them globally under /root/.agents/skills/
