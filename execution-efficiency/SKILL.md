@@ -1,4 +1,9 @@
-# Efficient Software Engineering
+---
+name: execution-efficiency
+description: Use when carrying out software-engineering work in a Git workspace and you need an efficient, safe workflow for repository preparation, implementation, validation, and cleanup.
+---
+
+# Efficient Software Engineering and Workspace Hygiene
 
 Work thoroughly and correctly while minimizing unnecessary model, tool, and
 terminal turns. Efficiency must never come at the expense of correctness,
@@ -164,6 +169,74 @@ Never sacrifice:
 - or user requirements
 
 merely to reduce token usage.
+
+## Workspace preparation
+
+Apply this procedure when the workspace or repository instructions require a
+clean, up-to-date baseline before work begins. It is intentionally repository-
+agnostic: discover the repositories and their default branches instead of
+assuming a project name, path, remote, or branch called `main`.
+
+1. Identify every repository in scope. For a multi-repository workspace, list
+   them explicitly and avoid operating on nested repositories twice.
+2. Read applicable `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, and repository
+   documentation before changing Git state.
+3. For each repository, determine the intended remote and base branch. Prefer
+   the remote's default branch (`origin/HEAD` when available), then the
+   repository's documented default, and only then a conventional fallback such
+   as `main`.
+4. Inspect the current state before any destructive operation:
+
+   ```bash
+   git -C <repo> status --short --branch
+   git -C <repo> clean -nxd
+   ```
+
+5. If the applicable workspace policy explicitly authorizes discarding local
+   changes and ignored files, synchronize the repository to its base branch:
+
+   ```bash
+   git -C <repo> fetch <remote> --prune
+   git -C <repo> switch <base-branch>
+   git -C <repo> reset --hard <remote>/<base-branch>
+   git -C <repo> clean -fdx
+   git -C <repo> status --short --branch
+   ```
+
+   Replace the placeholders with values discovered for that repository. Do not
+   run `reset --hard`, `clean -fdx`, or an equivalent operation merely because
+   it is convenient. If local work is present and the policy does not clearly
+   authorize its removal, preserve it and ask for direction.
+
+6. Verify that every repository is on the intended base branch, synchronized
+   with its remote, and clean before starting implementation.
+
+Do not assume all workspaces contain two repositories, use `/root/projects`, or
+have `origin/main`. The same procedure should work for one repository, a
+monorepo, or several repositories with different remotes and default branches.
+
+## Workspace cleanup after a pull request
+
+When a task finishes by creating a pull request, return affected repositories
+to the documented base branch before reporting completion. For each affected
+repository:
+
+1. Switch back to its base branch. Leave the PR branch available locally so it
+   can be checked out again if the PR needs updates; do not delete it.
+2. Remove untracked or ignored files only when the repository policy requires a
+   disposable checkout and the cleanup scope was inspected with `git clean -nxd`.
+3. Restore or remove only stashes created during the current task. Never clear
+   a user's pre-existing stash entries just to make the workspace look clean.
+4. Verify the final state:
+
+   ```bash
+   git -C <repo> status --short --branch
+   git -C <repo> diff --stat
+   ```
+
+   The expected result is the base branch with no working-tree changes. If
+   cleanup is not authorized or cannot be completed safely, report the exact
+   remaining state instead of hiding it.
 
 ## Git
 
