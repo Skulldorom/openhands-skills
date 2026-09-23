@@ -1,15 +1,6 @@
 ---
 name: execution-efficiency
 description: Use when implementing, fixing, debugging, reviewing, auditing, testing, refactoring, or modifying software in a Git repository. Provides an efficient execution workflow that minimizes redundant investigation, repeated validation, unnecessary tool calls, and excessive iteration while preserving correctness and safety.
-triggers:
-  - implement
-  - fix
-  - debug
-  - review
-  - audit
-  - test
-  - modify
-  - refactor
 ---
 
 # Efficient Software Engineering
@@ -39,15 +30,14 @@ Avoid routine progress narration. Communicate during execution when a meaningful
 
 ## Evidence and scope
 
-Every investigation should resolve a specific uncertainty that affects implementation, validation, safety, compatibility, or completion.
+User requirements and acceptance criteria define the desired outcome and constraints.
 
-For mutable technical facts, prefer evidence in this order when practical:
+For claims about current technical state, prefer evidence in this order when practical:
 
-1. explicit user requirements and acceptance criteria,
-2. current authoritative repository, configuration, or runtime state,
-3. reliable conclusions already established in the current task,
-4. focused tests or runtime evidence,
-5. external or upstream investigation.
+1. current authoritative repository, configuration, or runtime state,
+2. focused tests or runtime observations,
+3. reliable conclusions already established in the current task that remain valid,
+4. external or upstream investigation when local evidence cannot answer the question.
 
 Do not rediscover a fact from a more expensive source when valid existing evidence already establishes it. If state may have changed, re-check the authoritative source rather than trusting stale context.
 
@@ -143,9 +133,9 @@ Stop with partial completion only when a real tool, environment, execution, or p
 
 Preserve pre-existing user work and never include unrelated changes in the task.
 
-Before finishing repository changes, inspect the final diff and relevant repository state, confirm only intended changes were made, and ensure required validation passes.
+Before finishing repository changes, inspect the final diff and relevant repository state, confirm only intended changes were made, and ensure required validation passes or unavailable validation is explicitly identified.
 
-If the user requested a commit, push, existing branch, or pull request workflow, complete it after required verification succeeds.
+If the user requested a commit, push, existing branch, or pull request workflow, complete it after applicable verification is complete. If required validation cannot run, report the limitation rather than repeatedly investigating or silently treating it as successful.
 
 For substantial permanent-workspace preparation, cleanup, branch handling, stash management, or repository hygiene, use the `workspace-hygene` skill when available rather than duplicating that workflow here.
 
@@ -156,7 +146,7 @@ Finish when all applicable conditions are true:
 - every explicit user requirement is addressed,
 - the intended implementation is present,
 - relevant edge cases have been considered,
-- appropriate validation passes,
+- appropriate validation passes, or unavailable validation has been identified and reported,
 - the final diff contains only intended task changes,
 - requested Git operations are complete,
 - and no concrete unresolved blocker or correctness concern remains.
