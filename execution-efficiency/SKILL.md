@@ -1,6 +1,12 @@
 ---
 name: execution-efficiency
-description: Use when carrying out software-engineering work in a Git workspace and you need an efficient, safe workflow for repository preparation, implementation, validation, and cleanup.
+description: This skill should be used when the user asks to implement, fix, debug, review, audit, test, or modify software in a Git repository. It provides an efficient execution workflow that minimizes redundant investigation, repeated validation, unnecessary tool calls, and excessive iteration while preserving correctness and safety.
+triggers:
+  - implement
+  - fix
+  - debug
+  - review
+  - audit
 ---
 
 # Efficient Software Engineering and Workspace Hygiene
@@ -60,6 +66,12 @@ Do not rediscover a fact from a more expensive source when sufficiently authorit
 When new evidence contradicts an earlier conclusion, investigate the contradiction specifically rather than restarting the entire investigation.
 
 A hypothetical undiscovered problem is not, by itself, a concrete unresolved concern.
+
+### Repeat guard
+
+Before repeating a search, file read, status check, test, build, audit, or external investigation, identify what new unresolved fact the repetition can establish.
+
+If it cannot establish a materially new fact, do not repeat it.
 
 ### Scope discipline
 
@@ -190,62 +202,34 @@ Do not reopen completed requirements without contradictory evidence.
 
 As execution grows longer, become more selective about optional investigation, not less selective.
 
-If the task cannot safely be completed within the available execution budget, preserve the working state and report the concrete remaining work instead of spending the remaining budget on repetitive investigation.
+Do not stop merely because a task is long or has consumed substantial context.
 
-## Workspace preparation
+Prioritize remaining explicit requirements and necessary validation. Stop with partial completion only when an actual tool, environment, iteration, or execution limit prevents safe completion. Preserve the working state and report the concrete remaining work.
 
-Prepare or clean a workspace only when repository instructions, workspace policy, or the requested task requires it.
+## Workspace and Git safety
 
-Read applicable repository instructions such as `AGENTS.md`, `CLAUDE.md`, and `CONTRIBUTING.md`, plus only the additional documentation relevant to the task.
+Honor repository instructions already available in the current context.
 
-Determine the intended remote and base branch rather than assuming project names, paths, remotes, or `main`.
+Read additional instruction files such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or `CONTRIBUTING.md` only when they have not already been supplied, their scope may differ from the loaded instructions, or a concrete uncertainty requires consulting them. Do not reread instruction files merely to reconfirm instructions that remain available and valid in context.
 
-Inspect repository state before destructive operations. Useful commands include:
+Preserve pre-existing user work. Do not perform destructive cleanup, resets, branch changes, stash removal, or equivalent operations merely for convenience.
 
-```bash
-git -C <repo> status --short --branch
-git -C <repo> clean -nxd
-```
+Determine the intended remote and base branch when Git operations require that information rather than assuming project names, paths, remotes, or `main`.
 
-Never run `reset --hard`, `clean -fdx`, or equivalent destructive operations merely for convenience.
+Before finishing work that changes repository files:
 
-Preserve pre-existing local work. Continue without disturbing it when the requested task can be completed safely. Ask for direction only when existing state creates a genuine ambiguity or conflict that cannot be resolved safely.
-
-When policy explicitly requires and authorizes a clean synchronized baseline, discover the intended remote/base branch and verify the resulting state after synchronization.
-
-## Git workflow
-
-Do not repeatedly check repository status unless state may have changed or the result is needed for the next action.
-
-Before finishing:
-
-* inspect the final diff,
-* confirm only intended changes were made,
+* inspect the final diff and relevant repository state,
+* confirm only intended task changes were made,
 * distinguish pre-existing modifications from changes made during the current task,
-* ensure required validation passes.
+* and ensure required validation passes.
 
 Never include unrelated pre-existing changes in a commit unless explicitly requested.
 
-Do not turn final diff review into a new general repository audit. If it reveals a concrete problem, fix that problem and rerun only affected checks.
+If the user requested a commit or push, perform it only after required verification succeeds. If the user requested work on an existing branch or pull request, continue using it unless impossible or contrary to repository instructions.
 
-If the user requested a commit, commit the completed verified changes. If the user requested a push, push only after required verification succeeds.
+Do not perform post-PR cleanup unless the user, repository policy, or workspace policy requires it.
 
-If the user requested work on an existing branch or pull request, continue using it unless impossible or contrary to repository instructions. Do not silently create replacement branches or pull requests.
-
-## Cleanup after a pull request
-
-Perform cleanup only when repository or workspace policy requires it.
-
-When cleanup is required:
-
-1. Return repositories to documented base branches if policy requires it.
-2. Leave PR branches available unless policy says otherwise.
-3. Remove untracked or ignored files only when authorized and after inspecting the scope.
-4. Restore or remove only stashes created during the current task.
-5. Never clear pre-existing user stashes merely to make the workspace clean.
-6. Verify the resulting state.
-
-If cleanup cannot safely be completed, report the exact remaining state.
+When workspace preparation or cleanup is substantial and the `workspace-hygene` skill is available, follow that skill rather than duplicating its workflow here.
 
 ## Stop conditions
 
