@@ -142,17 +142,21 @@ For substantial permanent-workspace preparation, cleanup, branch handling, stash
 
 ## Completion gate
 
-Finish when all applicable conditions are true:
+Enter the completion phase when all applicable conditions are true:
 
 - every explicit user requirement is addressed,
 - the intended implementation is present,
 - relevant edge cases have been considered,
 - appropriate validation passes, or unavailable validation has been identified and reported,
 - the final diff contains only intended task changes,
-- requested Git operations are complete,
+- validation is sufficient to safely perform any requested final Git operations,
 - and no concrete unresolved blocker or correctness concern remains.
 
-Once the gate is satisfied, stop. Do not begin another audit pass, reread unchanged files merely to reconfirm conclusions, search for hypothetical additional problems, or rerun successful validation without new evidence.
+Once the gate is satisfied, stop exploratory investigation. Do not begin another audit pass, reread unchanged files merely to reconfirm conclusions, search for hypothetical additional problems, or rerun successful validation without new evidence.
+
+Complete any remaining requested Git operations, report the result, and finish.
+
+Treat final Git operations such as commit, push, or pull-request creation as terminal completion actions. Resume investigation only if a Git operation itself produces concrete new evidence of a problem.
 
 ## Completion report
 
