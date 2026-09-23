@@ -1,5 +1,5 @@
 ---
-name: workspace-hygene
+name: workspace-hygiene
 description: Use in permanent or long-lived Git workspaces to prepare repositories, preserve local state, and leave workspaces predictable across sessions and pull requests.
 ---
 

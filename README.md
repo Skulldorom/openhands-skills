@@ -9,7 +9,7 @@ This repository contains reusable skills for OpenHands.
 ## Skills
 
 - `execution-efficiency` — efficient software-engineering workflows and validation.
-- `workspace-hygene` — safe hygiene for permanent, long-lived workspaces.
+- `workspace-hygiene` — safe hygiene for permanent, long-lived workspaces.
 
 ## Recommended: install from OpenHands
 
@@ -22,7 +22,7 @@ In an OpenHands conversation, run:
 To install the permanent-workspace skill instead:
 
 ```text
-/add-skill Skulldorom/openhands-skills/workspace-hygene
+/add-skill Skulldorom/openhands-skills/workspace-hygiene
 ```
 
 OpenHands installs the selected skill into the current workspace's
@@ -37,10 +37,10 @@ For execution-efficiency:
 rm -rf /tmp/openhands-skills && git clone -q https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills && mkdir -p /root/.agents/skills && cp -R /tmp/openhands-skills/execution-efficiency /root/.agents/skills/ && rm -rf /tmp/openhands-skills
 ```
 
-For workspace-hygene:
+For workspace-hygiene:
 
 ```
-rm -rf /tmp/openhands-skills && git clone -q https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills && mkdir -p /root/.agents/skills && cp -R /tmp/openhands-skills/workspace-hygene /root/.agents/skills/ && rm -rf /tmp/openhands-skills
+rm -rf /tmp/openhands-skills && git clone -q https://github.com/Skulldorom/openhands-skills.git /tmp/openhands-skills && mkdir -p /root/.agents/skills && cp -R /tmp/openhands-skills/workspace-hygiene /root/.agents/skills/ && rm -rf /tmp/openhands-skills
 ```
 
 These install them globally under /root/.agents/skills/

@@ -28,6 +28,16 @@ When the next required action is clear, permitted by active policy, and does not
 
 Avoid routine progress narration. Communicate during execution when a meaningful milestone, blocker, changed assumption, or actionable result matters to the user.
 
+### Task mode
+
+Determine whether the task is read-only or modifying before acting.
+
+For review, audit, evaluation, explanation, investigation, or analysis tasks, do not modify files, repository state, branches, commits, or pull requests unless the user explicitly requests changes.
+
+For implementation, fixing, refactoring, or modification tasks, make only the changes required to satisfy the request.
+
+Instructions later in this skill about implementation, validation, or Git operations apply only when relevant to the task mode.
+
 ## Evidence and scope
 
 User requirements and acceptance criteria define the desired outcome and constraints.
@@ -53,6 +63,8 @@ If it cannot establish a materially new fact, do not repeat it.
 Repeat or broaden investigation only when evidence is incomplete or contradictory, state changed, the previous method was insufficient, or a concrete correctness, security, compatibility, or requirement question remains.
 
 Exploratory investigation is appropriate when the user explicitly requests a deep, exhaustive, architectural, or security review, or when the change affects a clearly high-risk surface. Even then, tie each investigation to a distinct risk or question.
+
+For review and audit tasks, establish the relevant review dimensions once and inspect each relevant surface sufficiently to answer them. Revisit an already-reviewed surface only when a concrete finding, contradiction, or dependency creates a new unresolved question.
 
 ### Scope discipline
 
@@ -138,7 +150,7 @@ Before finishing repository changes, inspect the final diff and relevant reposit
 
 If the user requested a commit, push, existing branch, or pull request workflow, complete it after applicable verification is complete. If required validation cannot run, report the limitation rather than repeatedly investigating or silently treating it as successful.
 
-For substantial permanent-workspace preparation, cleanup, branch handling, stash management, or repository hygiene, use the `workspace-hygene` skill when available rather than duplicating that workflow here.
+For substantial permanent-workspace preparation, cleanup, branch handling, stash management, or repository hygiene, use the `workspace-hygiene` skill when available rather than duplicating that workflow here.
 
 ## Completion gate
 
@@ -146,7 +158,7 @@ Enter the completion phase when all applicable conditions are true:
 
 - every explicit user requirement is addressed,
 - the intended implementation is present,
-- relevant edge cases have been considered,
+- relevant edge cases identified by the requirements, changed behavior, evidence, or a concrete risk have been considered,
 - appropriate validation passes, or unavailable validation has been identified and reported,
 - the final diff contains only intended task changes,
 - validation is sufficient to safely perform any requested final Git operations,
