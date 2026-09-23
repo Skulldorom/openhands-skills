@@ -150,7 +150,7 @@ Before finishing repository changes, inspect the final diff and relevant reposit
 
 If the user requested a commit, push, existing branch, or pull request workflow, complete it after applicable verification is complete. If required validation cannot run, report the limitation rather than repeatedly investigating or silently treating it as successful.
 
-For substantial permanent-workspace preparation, cleanup, branch handling, stash management, or repository hygiene, use the `workspace-hygene` skill when available rather than duplicating that workflow here.
+For substantial permanent-workspace preparation, cleanup, branch handling, stash management, or repository hygiene, use the `workspace-hygiene` skill when available rather than duplicating that workflow here.
 
 ## Completion gate
 
