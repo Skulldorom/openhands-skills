@@ -132,6 +132,14 @@ Avoid large full-file reads, logs, diffs, dependency trees, or generated bundles
 
 Do not repeatedly retrieve output that remains available and valid in context. Preserve conclusions and current working state rather than reconstructing the full investigation after context condensation.
 
+### Asynchronous external work
+
+Do not occupy a terminal or consume repeated turns with long polling loops for asynchronous external work such as CI, deployments, remote builds, or checks.
+
+After triggering or pushing work, check the external status once when relevant. If it is still pending and completion of that external job is not an explicit acceptance criterion, report it as pending and finish.
+
+If the user explicitly requires the final external result, use bounded, discrete status checks at reasonable intervals rather than a long-running shell polling loop. Do not repeatedly check unchanged pending state without new evidence.
+
 ## Long tasks
 
 For long or complex work, compare progress with the user's explicit requirements at natural milestones or after a meaningful failure.
@@ -163,6 +171,8 @@ Enter the completion phase when all applicable conditions are true:
 - the final diff contains only intended task changes,
 - validation is sufficient to safely perform any requested final Git operations,
 - and no concrete unresolved blocker or correctness concern remains.
+
+A pending external check is not by itself a reason to keep the execution loop open unless its successful completion is an explicit requirement or necessary to establish correctness.
 
 Once the gate is satisfied, stop exploratory investigation. Do not begin another audit pass, reread unchanged files merely to reconfirm conclusions, search for hypothetical additional problems, or rerun successful validation without new evidence.
 
