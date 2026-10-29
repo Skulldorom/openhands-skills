@@ -62,6 +62,8 @@ If it cannot establish a materially new fact, do not repeat it.
 
 Repeat or broaden investigation only when evidence is incomplete or contradictory, state changed, the previous method was insufficient, or a concrete correctness, security, compatibility, or requirement question remains.
 
+For terminal recovery, distinguish a command that is still running from a terminal session that is unhealthy. If OpenHands explicitly reports a soft timeout or states that the previous command is still running, use the terminal's documented continuation or input mechanism rather than treating the session as failed. Do not infer that a process is still running from exit code `-1` alone; inspect the accompanying terminal observation because `-1` can also represent a closed terminal or a completed command whose exit status could not be determined. If the terminal itself cannot accept the documented continuation mechanism or otherwise appears unresponsive, perform at most one bounded recovery attempt before resetting or recreating it; do not enter repeated wait, poll, or interrupt cycles.
+
 Exploratory investigation is appropriate when the user explicitly requests a deep, exhaustive, architectural, or security review, or when the change affects a clearly high-risk surface. Even then, tie each investigation to a distinct risk or question.
 
 For review and audit tasks, establish the relevant review dimensions once and inspect each relevant surface sufficiently to answer them. Revisit an already-reviewed surface only when a concrete finding, contradiction, or dependency creates a new unresolved question.
@@ -99,6 +101,8 @@ Prefer:
 
 During implementation, use the smallest relevant validation that provides useful feedback. Batch related edits before rerunning checks when practical.
 
+When validation at a repository wrapper's scope is required, prefer the canonical wrapper over manually duplicating its underlying checks. If a wrapper such as `./scripts/test`, `./scripts/lint`, or an equivalent task already runs the relevant frontend, backend, or workspace validation, do not run those same checks again individually unless diagnosing a failure, repository instructions explicitly require both, or the individual check covers behavior the wrapper does not. Do not choose a broader wrapper over a smaller relevant validation merely because the wrapper exists.
+
 Do not finish an implementation without meaningful validation unless it is unavailable, impossible in the environment, or genuinely unnecessary for the type of change. Report any validation that could not be performed and why.
 
 When a test fails after a change, determine whether the implementation or the test conflicts with the intended contract. Do not weaken, delete, skip, bypass, or rewrite tests merely to obtain a passing result.
@@ -131,6 +135,44 @@ Keep operations sequential when ordering affects state, later work depends on ea
 Avoid large full-file reads, logs, diffs, dependency trees, or generated bundles when a targeted range or query answers the question. Read small or structurally important files in full when doing so reduces uncertainty or prevents fragmented investigation.
 
 Do not repeatedly retrieve output that remains available and valid in context. Preserve conclusions and current working state rather than reconstructing the full investigation after context condensation.
+
+### Terminal session safety
+
+Treat the OpenHands terminal as a persistent interactive shell unless the environment explicitly guarantees otherwise.
+
+On Unix-like OpenHands terminals, do not terminate the persistent shell with commands such as `exit`, `logout`, `exec`, `kill $$`, or equivalent shell-termination patterns. Do not enable shell-fatal options such as `set -e`, `set -eu`, or `set -euo pipefail` in the persistent shell; if a workflow requires those options, isolate it inside a disposable child shell or script.
+
+The shell examples below are for Unix/Bash-compatible terminals. On PowerShell or another shell family, use that environment's native equivalent while preserving the same rule: failure handling may terminate only a disposable child process or script, never the persistent OpenHands terminal session.
+
+When a Unix/Bash workflow needs to preserve a command's exact exit status while printing diagnostics or performing follow-up work, do not use a pattern that ends with `exit "$status"` directly in the persistent shell. Isolate that workflow inside a disposable subprocess so only the subprocess terminates, for example:
+
+```bash
+(
+  command
+  status=$?
+  # print diagnostics or perform cleanup
+  exit "$status"
+)
+```
+
+If only success or failure semantics are required rather than the exact exit code, the persistent Unix/Bash shell may instead end the sequence with a non-terminating status check such as `test "$status" -eq 0`.
+
+A reported soft timeout is not the same as a dead terminal. If OpenHands explicitly reports a soft timeout or states that the previous command is still running, treat the process as active and use the terminal's documented continuation/input mechanism, such as retrieving additional output or deliberately sending an appropriate control input, rather than issuing an unrelated shell command to probe the session. Do not infer that a process is active from exit code `-1` alone; use the accompanying observation text and terminal state because `-1` may also represent a closed terminal or a completed command whose exit status could not be determined.
+
+If a terminal action or transport unexpectedly becomes unresponsive:
+
+1. Check whether OpenHands explicitly reports that the previous command is still running.
+2. If it does, use the documented continuation/input mechanism to retrieve output or intentionally control that running process.
+3. For a legitimately long-running command in a responsive terminal, additional continuation checks are allowed only when justified by expected runtime, new output, or a reasonable interval; do not repeatedly poll unchanged output.
+4. If the underlying command has already completed and its result is available, use that result rather than rerunning it.
+5. If the terminal cannot accept the documented continuation/input mechanism or otherwise appears unresponsive, perform at most one bounded recovery attempt.
+6. If that recovery also fails, reset or recreate the terminal session.
+7. After recreating the terminal, re-establish only the session state required to continue, such as the working directory, required environment variables, or virtual environment.
+8. Continue from established results rather than restarting successful work.
+
+Do not repeatedly send empty polls, waits, Ctrl-C, or equivalent recovery commands to an unresponsive terminal session. Bounded continuation checks for a command that OpenHands explicitly reports as still running are not a recovery loop when they are justified by expected runtime, new output, or a reasonable interval.
+
+Do not rerun a successful validation suite solely because the terminal transport timed out after the suite produced complete passing output, and do not rerun already-successful work merely to reconstruct terminal session state.
 
 ### Asynchronous external work
 
