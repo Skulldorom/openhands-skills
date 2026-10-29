@@ -62,7 +62,7 @@ If it cannot establish a materially new fact, do not repeat it.
 
 Repeat or broaden investigation only when evidence is incomplete or contradictory, state changed, the previous method was insufficient, or a concrete correctness, security, compatibility, or requirement question remains.
 
-For terminal recovery, one failed follow-up attempt is sufficient evidence that the session itself may be unhealthy. Do not enter repeated wait, poll, or interrupt cycles against an unresponsive session; reset or recreate the terminal and continue from already-established evidence.
+For terminal recovery, one failed follow-up attempt against a terminal that appears unresponsive is sufficient evidence that the session itself may be unhealthy. Do not enter repeated wait, poll, or interrupt cycles against an unresponsive session; follow the terminal session safety guidance below to reset or recreate the terminal and continue from already-established evidence.
 
 Exploratory investigation is appropriate when the user explicitly requests a deep, exhaustive, architectural, or security review, or when the change affects a clearly high-risk surface. Even then, tie each investigation to a distinct risk or question.
 
@@ -101,7 +101,7 @@ Prefer:
 
 During implementation, use the smallest relevant validation that provides useful feedback. Batch related edits before rerunning checks when practical.
 
-Prefer canonical repository validation commands over manually duplicating their underlying checks. If a repository wrapper such as `./scripts/test`, `./scripts/lint`, or an equivalent task already runs the relevant frontend, backend, or workspace validation, do not run those same checks again individually unless diagnosing a failure, repository instructions explicitly require both, or the individual check covers behavior the wrapper does not.
+When validation at a repository wrapper's scope is required, prefer the canonical wrapper over manually duplicating its underlying checks. If a wrapper such as `./scripts/test`, `./scripts/lint`, or an equivalent task already runs the relevant frontend, backend, or workspace validation, do not run those same checks again individually unless diagnosing a failure, repository instructions explicitly require both, or the individual check covers behavior the wrapper does not. Do not choose a broader wrapper over a smaller relevant validation merely because the wrapper exists.
 
 Do not finish an implementation without meaningful validation unless it is unavailable, impossible in the environment, or genuinely unnecessary for the type of change. Report any validation that could not be performed and why.
 
@@ -142,16 +142,18 @@ Treat the OpenHands terminal as a persistent interactive shell unless the enviro
 
 Do not terminate the persistent shell with commands such as `exit`, `logout`, `exec`, `kill $$`, or equivalent shell-termination patterns.
 
-When preserving a command's exit status while printing diagnostics or performing follow-up work, do not use a pattern that ends with `exit "$status"` directly in the persistent shell. Preserve the failure semantics without terminating the shell, for example:
+When a workflow needs to preserve a command's exact exit status while printing diagnostics or performing follow-up work, do not use a pattern that ends with `exit "$status"` directly in the persistent shell. Isolate that workflow inside a disposable subprocess so only the subprocess terminates, for example:
 
 ```bash
-command
-status=$?
-# print diagnostics or perform cleanup
-test "$status" -eq 0
+(
+  command
+  status=$?
+  # print diagnostics or perform cleanup
+  exit "$status"
+)
 ```
 
-If explicit `exit` behavior is required, isolate it inside a disposable subprocess such as `bash -lc '...'` so only that subprocess terminates.
+If only success or failure semantics are required rather than the exact exit code, the persistent shell may instead end the sequence with a non-terminating status check such as `test "$status" -eq 0`.
 
 A terminal timeout does not by itself prove that the underlying command is still running or that validation failed.
 
@@ -161,11 +163,12 @@ If a terminal action unexpectedly times out:
 2. If the underlying command already completed, use that result rather than rerunning it.
 3. If the terminal itself appears unresponsive, perform at most one bounded recovery attempt.
 4. If that recovery also fails, reset or recreate the terminal session.
-5. Continue from established results rather than restarting successful work.
+5. After recreating the terminal, re-establish only the session state required to continue, such as the working directory, required environment variables, or virtual environment.
+6. Continue from established results rather than restarting successful work.
 
 Do not repeatedly send empty polls, waits, Ctrl-C, or equivalent recovery commands to an unresponsive terminal session.
 
-Do not rerun a successful validation suite solely because the terminal transport timed out after the suite produced complete passing output.
+Do not rerun a successful validation suite solely because the terminal transport timed out after the suite produced complete passing output, and do not rerun already-successful work merely to reconstruct terminal session state.
 
 ### Asynchronous external work
 
