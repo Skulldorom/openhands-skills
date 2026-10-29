@@ -62,6 +62,8 @@ If it cannot establish a materially new fact, do not repeat it.
 
 Repeat or broaden investigation only when evidence is incomplete or contradictory, state changed, the previous method was insufficient, or a concrete correctness, security, compatibility, or requirement question remains.
 
+For terminal recovery, one failed follow-up attempt is sufficient evidence that the session itself may be unhealthy. Do not enter repeated wait, poll, or interrupt cycles against an unresponsive session; reset or recreate the terminal and continue from already-established evidence.
+
 Exploratory investigation is appropriate when the user explicitly requests a deep, exhaustive, architectural, or security review, or when the change affects a clearly high-risk surface. Even then, tie each investigation to a distinct risk or question.
 
 For review and audit tasks, establish the relevant review dimensions once and inspect each relevant surface sufficiently to answer them. Revisit an already-reviewed surface only when a concrete finding, contradiction, or dependency creates a new unresolved question.
@@ -99,6 +101,8 @@ Prefer:
 
 During implementation, use the smallest relevant validation that provides useful feedback. Batch related edits before rerunning checks when practical.
 
+Prefer canonical repository validation commands over manually duplicating their underlying checks. If a repository wrapper such as `./scripts/test`, `./scripts/lint`, or an equivalent task already runs the relevant frontend, backend, or workspace validation, do not run those same checks again individually unless diagnosing a failure, repository instructions explicitly require both, or the individual check covers behavior the wrapper does not.
+
 Do not finish an implementation without meaningful validation unless it is unavailable, impossible in the environment, or genuinely unnecessary for the type of change. Report any validation that could not be performed and why.
 
 When a test fails after a change, determine whether the implementation or the test conflicts with the intended contract. Do not weaken, delete, skip, bypass, or rewrite tests merely to obtain a passing result.
@@ -131,6 +135,37 @@ Keep operations sequential when ordering affects state, later work depends on ea
 Avoid large full-file reads, logs, diffs, dependency trees, or generated bundles when a targeted range or query answers the question. Read small or structurally important files in full when doing so reduces uncertainty or prevents fragmented investigation.
 
 Do not repeatedly retrieve output that remains available and valid in context. Preserve conclusions and current working state rather than reconstructing the full investigation after context condensation.
+
+### Terminal session safety
+
+Treat the OpenHands terminal as a persistent interactive shell unless the environment explicitly guarantees otherwise.
+
+Do not terminate the persistent shell with commands such as `exit`, `logout`, `exec`, `kill $$`, or equivalent shell-termination patterns.
+
+When preserving a command's exit status while printing diagnostics or performing follow-up work, do not use a pattern that ends with `exit "$status"` directly in the persistent shell. Preserve the failure semantics without terminating the shell, for example:
+
+```bash
+command
+status=$?
+# print diagnostics or perform cleanup
+test "$status" -eq 0
+```
+
+If explicit `exit` behavior is required, isolate it inside a disposable subprocess such as `bash -lc '...'` so only that subprocess terminates.
+
+A terminal timeout does not by itself prove that the underlying command is still running or that validation failed.
+
+If a terminal action unexpectedly times out:
+
+1. Inspect already-available output and process state once.
+2. If the underlying command already completed, use that result rather than rerunning it.
+3. If the terminal itself appears unresponsive, perform at most one bounded recovery attempt.
+4. If that recovery also fails, reset or recreate the terminal session.
+5. Continue from established results rather than restarting successful work.
+
+Do not repeatedly send empty polls, waits, Ctrl-C, or equivalent recovery commands to an unresponsive terminal session.
+
+Do not rerun a successful validation suite solely because the terminal transport timed out after the suite produced complete passing output.
 
 ### Asynchronous external work
 
